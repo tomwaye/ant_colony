@@ -9,7 +9,8 @@ SIZE_CELLS = 4
 
 DEPOSIT_RATE = 2
 WANDER_WEIGHT = 3
-TURN_RATE = 7
+TURN_RATE_HOME = 7
+TURN_RATE_FOOD = 10
 
 SENSOR_DISANCE = 8 * SIZE_CELLS
 SENSOR_ANGLE = numpy.pi / 4
@@ -60,7 +61,7 @@ class Ant:
             return -1
         return grid.sample(pos)
 
-    def follow_grid(self, grid, walls, dt):
+    def follow_grid(self, grid, walls, dt, state):
         pheremone_c = self.sense(grid, walls, self.C)
         pheremone_r = self.sense(grid, walls, self.R)
         pheremone_l = self.sense(grid, walls, self.L)
@@ -68,15 +69,21 @@ class Ant:
         if pheremone_c >= pheremone_r and pheremone_c >= pheremone_l:
             pass
         elif pheremone_r >= pheremone_c and pheremone_r >= pheremone_l:
-            self.heading += TURN_RATE * dt
+            if state == "home":
+                self.heading += TURN_RATE_HOME * dt
+            elif state == "food":
+                self.heading += TURN_RATE_FOOD * dt
         else:
-            self.heading -= TURN_RATE * dt
+            if state == "home":
+                self.heading -= TURN_RATE_HOME * dt
+            elif state == "food":
+                self.heading -= TURN_RATE_FOOD * dt
 
     def update(self, dt, home_grid, food_grid, walls, foods, nest):
         if self.searching and not self.lost:
-            self.follow_grid(food_grid, walls, dt)
+            self.follow_grid(food_grid, walls, dt, "food")
         else:
-            self.follow_grid(home_grid, walls, dt)
+            self.follow_grid(home_grid, walls, dt, "home")
 
         if self.searching:
             for food in foods:
