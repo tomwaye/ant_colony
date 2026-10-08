@@ -1,3 +1,5 @@
 .venv
 claude_example.py
 repl.py
+__pycache__/
+captures/
